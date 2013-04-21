@@ -1,7 +1,7 @@
 var tipack = tipack || {};
 
 tipack.getDefaultUserAgent = function() {
-	reutrn "tipack4js (gzip)";  // required to enable AppEngine gzip compression on Titanium
+	return "tipack4js (gzip)";  // required to enable AppEngine gzip compression on Titanium
 };
 
 tipack.Protocol = tipack.Protocol || function(params) { return (function(params) {
