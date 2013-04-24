@@ -67,5 +67,66 @@ tipack.Filesystem = tipack.Filesystem || (function() {
 		dir.createDirectory();
 	};
 	
+	/**
+	 * Titanium 2.x on iOS doesn't implement Ti.Filesystem.File.isDirectory.
+	 * @see http://developer.appcelerator.com/question/136433/titaniumfilesystemfileisdirectory-on-ios
+	 */
+	function isDirectory(file) {
+		if (file.isDirectory) {
+			return file.isDirectory();
+		}
+		
+		if (!file.exists()) {
+        	return false;
+        }
+        
+        var nativePath = file.nativePath;
+        return (nativePath[nativePath.length - 1] === Ti.Filesystem.getSeparator());
+	}	
+	
+	function deleteFile(file) {
+		if (isDirectory(file)) {
+			file.deleteDirectory(true); // recursive
+		} else {
+			file.deleteFile();
+		}
+	}
+	
+	function deleteAll(basePath, excludeFilenames) {
+		excludeFilenames = excludeFilenames || [];
+		
+		var list = basePath.getDirectoryListing();
+		if (list) {
+			for (var i = 0, l = list.length; i < l; ++i) {
+				var filename = list[i];
+				var exclude = false;
+				for (var j = 0, m = excludeFilenames.length; j < m; ++j) {
+					if (filename === excludeFilenames[j]) {
+						exclude = true;
+						break;
+					}
+				}
+				if (!exclude) {
+					var file = Ti.Filesystem.getFile(basePath.nativePath, filename);
+					deleteFile(file);
+				}
+			}
+		}
+	}
+	
+	self.cleanup = function(params) {
+		params = params || {};
+		var excludeArchiveId = params.excludeArchiveId || null;
+		
+		// Delete archives
+		var excludeArchiveFilename = ((excludeArchiveId !== null) ? (excludeArchiveId + ".json") : null);
+		deleteAll(self.getArchivesDir(), [excludeArchiveFilename]);
+		
+		// Delete extracted apps (and flag files)
+		var excludeFlagFilename = ((excludeArchiveId !== null) ? (excludeArchiveId + ".flag") : null);
+		var excludeAppFilename = ((excludeArchiveId !== null) ? (excludeArchiveId) : null);
+		deleteAll(self.getAppsDir(), [excludeFlagFilename, excludeAppFilename]);
+	};
+	
 	return self;
 }());
