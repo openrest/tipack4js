@@ -20,19 +20,5 @@ tipack.Client = tipack.Client || function(params) { return (function(params) {
 		});
 	};
 	
-	self.getProject = function(params) {
-		var projectId = params.projectId;
-		var callback = params.callback;
-		
-		tipack.Protocol.get({
-			url : apiUrl + "/projects/" + projectId,
-			callback : callback
-		});
-	};
-	
-	self.getArchiveUrl = function(archiveId) {
-		return apiUrl + "/archives/" + archiveId;
-	};
-	
 	return self;
 }(params))};
