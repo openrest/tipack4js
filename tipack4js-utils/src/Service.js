@@ -131,11 +131,16 @@ tipack.Service = tipack.Service || (function() {
         clearTimeout(handle);
 		checkForUpdatesRecurring();
     };
-
+    
 	self.start = function(params) {
 		params = params || {};
 		timeout = params.timeout || (1000 * 60 * 60);
 		errorTimeout = params.errorTimeout || (1000 * 60 * 5);
+		
+		var project = tipack.Instance.getProject();
+		tipack.Filesystem.cleanup({
+			excludeArchiveId : ((project !== null) ? project.archiveId : null)
+		});
 		
 		checkForUpdatesRecurring();
 	};
