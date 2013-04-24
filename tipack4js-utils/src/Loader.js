@@ -18,19 +18,21 @@ tipack.Loader = tipack.Loader || (function() {
 		}
 		
 		if (shouldDownload) {
-            callback({"type":"download_start"});
+            callback({type:"download_start"});
                                   
 			tipack.Utils.downloadProject({
 				projectId : projectId,
                 progressCallback: function(progress) {
-                    callback({"type":"download_progress", "progress":progress});
+                    callback({type:"download_progress", "progress":progress});
                 },
 				callback : function(response) {
-                    callback({"type":"download_end"});
-					if (response.error) {
-						alert("Internet connection problem: " + response.error.message);
-						// TODO: may cause infinite loop?
-						load(params);
+                    callback({type:"download_end"});
+                    
+					if (response.error) { // Internet connection problem?
+						callback({
+							type : "error",
+							error : response.error
+						});
 					} else {
 						load({
 							projectId : projectId,
@@ -43,9 +45,9 @@ tipack.Loader = tipack.Loader || (function() {
 			return;
 		}
 
-        callback({"type":"extract_start"});
+        callback({type:"extract_start"});
         tipack.Utils.extractArchive(project.archiveId);
-        callback({"type":"extract_end"});
+        callback({type:"extract_end"});
 
 		var app = new tipack.App({
 			project : project,
